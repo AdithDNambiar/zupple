@@ -7,9 +7,10 @@ const VerifyPage: React.FC = () => {
 
   const handleVerify = async () => {
     try {
-      const res = await axios.post("https://zupple-verification-service.onrender.com/verify", {
-        credential: { id: Number(id) },
-      });
+      const res = await axios.post(
+        "https://zupple-verification-service.onrender.com/verify", // ✅ POST to /verify
+        { credential: { id: Number(id) } }
+      );
       setResponse(res.data);
     } catch (err: any) {
       setResponse(err.response?.data || { error: err.message });

@@ -1,56 +1,59 @@
 import express, { Request, Response } from "express";
-import axios from "axios";
 import cors from "cors";
+import fs from "fs";
+import path from "path";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Public verification service URL (override via env if you want)
-const VERIFICATION_URL =
-  process.env.VERIFICATION_URL ||
-  "https://zupple-verification-service.onrender.com";
-
-app.use(cors({ origin: "*" }));
+app.use(cors());
 app.use(express.json());
 
-app.post("/issue", async (req: Request, res: Response) => {
-  const { credentialData } = req.body || {};
+const dataFile = path.join(__dirname, "credentials.json");
 
-  const issuedCredential = {
-    id: Math.floor(Math.random() * 10000),
-    credentialData,
+if (!fs.existsSync(dataFile)) {
+  fs.writeFileSync(dataFile, JSON.stringify([]));
+}
+
+app.post("/issue", (req: Request, res: Response) => {
+  const { name, role } = req.body;
+
+  if (!name || !role) {
+    return res.status(400).json({ error: "Name and role are required" });
+  }
+
+  const credentials = JSON.parse(fs.readFileSync(dataFile, "utf-8"));
+  const existing = credentials.find(
+    (c: any) =>
+      c.credentialData.name === name && c.credentialData.role === role
+  );
+
+  if (existing) {
+    return res.json({
+      message: "Credential already exists",
+      issuedCredential: existing,
+    });
+  }
+
+  const newCredential = {
+    id: Math.floor(1000 + Math.random() * 9000),
+    credentialData: { name, role },
     issuedAt: new Date().toISOString(),
   };
 
-  try {
-    const verifyResponse = await axios.post(
-      `${VERIFICATION_URL}/verify`,
-      { credential: issuedCredential },
-      { timeout: 10000 }
-    );
+  credentials.push(newCredential);
+  fs.writeFileSync(dataFile, JSON.stringify(credentials, null, 2));
 
-    return res.status(200).json({
-      message: "Credential issued and verified successfully!",
-      issuedCredential,
-      verificationResult: verifyResponse.data,
-    });
-  } catch (error: any) {
-    // Better logging for debugging
-    console.error("Error contacting verification-service:");
-    if (error.response) {
-      console.error("status:", error.response.status);
-      console.error("data:", error.response.data);
-    } else {
-      console.error(error.message || error);
-    }
-    return res.status(500).json({
-      message: "Credential issued but verification failed.",
-      error: error?.response?.data || error?.message || String(error),
-    });
-  }
+  res.json({
+    message: "Credential issued successfully",
+    issuedCredential: newCredential,
+  });
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ Issuance Service running on port ${PORT}`);
-  console.log(`Using verification URL: ${VERIFICATION_URL}`);
+app.get("/", (_req: Request, res: Response) => {
+  res.send("✅ Issuance Service is running!");
 });
+
+app.listen(PORT, () =>
+  console.log(`✅ Issuance Service running on port ${PORT}`)
+);

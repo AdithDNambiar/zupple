@@ -9,11 +9,11 @@ const IssuePage: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      const res = await axios.post("https://zupple-issuance-service.onrender.com/", {
+      const res = await axios.post("https://zupple-issuance-service.onrender.com/issue", {
         credentialData: { name, role },
       });
       setResponse(res.data);
-      setIssuedId(res.data.issuedCredential?.id || null); // store issued credential ID
+      setIssuedId(res.data.issuedCredential?.id || null);
     } catch (err: any) {
       setResponse(err.response?.data || { error: err.message });
     }
@@ -37,7 +37,9 @@ const IssuePage: React.FC = () => {
       <button onClick={handleSubmit}>Issue</button>
 
       {issuedId && (
-        <p>Credential ID: <strong>{issuedId}</strong> (use this to verify)</p>
+        <p>
+          Credential ID: <strong>{issuedId}</strong> (use this to verify)
+        </p>
       )}
 
       <pre>{JSON.stringify(response, null, 2)}</pre>

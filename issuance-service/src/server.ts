@@ -22,7 +22,7 @@ app.post("/issue", async (req: Request, res: Response) => {
   try {
     // Call verification service inside Docker network
     const verifyResponse = await axios.post(
-      "https://zupple-verification-service.onrender.com/",
+      "https://zupple-verification-service.onrender.com/verify",
       { credential: issuedCredential }
     );
 

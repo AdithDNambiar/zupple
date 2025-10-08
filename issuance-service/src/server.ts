@@ -24,7 +24,7 @@ app.post("/issue", async (req: Request, res: Response) => {
 
   try {
     const verifyResponse = await axios.post(
-      `${VERIFICATION_URL.replace(/\/$/, "")}/verify`,
+      `${VERIFICATION_URL}/verify`,
       { credential: issuedCredential },
       { timeout: 10000 }
     );

@@ -4,16 +4,24 @@ import axios from "axios";
 const VerifyPage: React.FC = () => {
   const [id, setId] = useState("");
   const [response, setResponse] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleVerify = async () => {
+    setLoading(true);
+    setResponse(null);
     try {
       const res = await axios.post(
-        "https://zupple-verification-service.onrender.com/verify", // ✅ POST to /verify
-        { credential: { id: Number(id) } }
+        "https://zupple-verification-service.onrender.com/verify",
+        { credential: { id: Number(id) } },
+        { timeout: 10000 }
       );
       setResponse(res.data);
     } catch (err: any) {
-      setResponse(err.response?.data || { error: err.message });
+      setResponse(
+        err?.response?.data || { error: err?.message || "Unknown error" }
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -26,8 +34,12 @@ const VerifyPage: React.FC = () => {
         onChange={(e) => setId(e.target.value)}
       />
       <br />
-      <button onClick={handleVerify}>Verify</button>
-      <pre>{JSON.stringify(response, null, 2)}</pre>
+      <button onClick={handleVerify} disabled={loading}>
+        {loading ? "Verifying..." : "Verify"}
+      </button>
+      <pre style={{ whiteSpace: "pre-wrap" }}>
+        {JSON.stringify(response, null, 2)}
+      </pre>
     </div>
   );
 };

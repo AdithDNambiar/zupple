@@ -9,7 +9,7 @@ const IssuePage: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      const res = await axios.post("https://zupple-issuance-service.onrender.com", {
+      const res = await axios.post("https://zupple-issuance-service.onrender.com/issue", {
         credentialData: { name, role },
       });
       setResponse(res.data);

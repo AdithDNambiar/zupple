@@ -7,7 +7,7 @@ const VerifyPage: React.FC = () => {
 
   const handleVerify = async () => {
     try {
-      const res = await axios.post("https://zupple-verification-service.onrender.com", {
+      const res = await axios.post("https://zupple-verification-service.onrender.com/verify", {
         credential: { id: Number(id) }, // same format as backend expects
       });
       setResponse(res.data);

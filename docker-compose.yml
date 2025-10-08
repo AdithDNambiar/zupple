@@ -1,0 +1,22 @@
+services:
+  issuance-service:
+    build: ./issuance-service
+    container_name: zupple-issuance-service
+    ports:
+      - "4000:4000"
+    depends_on:
+      - verification-service
+    networks:
+      - zupple-network
+
+  verification-service:
+    build: ./verification-service
+    container_name: zupple-verification-service
+    ports:
+      - "5000:5000"
+    networks:
+      - zupple-network
+
+networks:
+  zupple-network:
+    driver: bridge
